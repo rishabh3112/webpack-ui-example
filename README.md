@@ -20,4 +20,4 @@ $ node path/to/ui/index.js
 }
 ```
 
-The response would have a value prop as `true` and `webpack` prop as text of config at root (will be replaced in with ast)!!
+The response would have a value prop as `true` and `webpack` prop as text of config at root (will be replaced with ast)!!

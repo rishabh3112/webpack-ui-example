@@ -16,7 +16,7 @@ $ node path/to/ui/index.js
 4. Send the following POST request to `api/init` to scaffold defaults
 ```
 {
-    "type": "defaults"
+    "type": "defaults" // if sent something else would show webpack at root (if any) else null
 }
 ```
 

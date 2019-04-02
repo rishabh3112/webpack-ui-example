@@ -13,7 +13,7 @@ $ npm build
 $ node path/to/ui/index.js
 ```
 
-4. Send the following request to `api/init` to scaffold defaults
+4. Send the following POST request to `api/init` to scaffold defaults
 ```
 {
     "type": "defaults"

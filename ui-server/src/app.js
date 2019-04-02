@@ -8,14 +8,15 @@ const app = express();
 
 
 // Middlewares
-app.use(webpackConfigMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(webpackConfigMiddleware);
 
-app.post('/init', (req, res) => {
+app.post('/api/init', (req, res) => {
     if (req.body.type === 'defaults') {
         scaffoldDefaults(USER_DIRECTORY);
+        res.json({value: true});
     }
-    res.send("apple");
+    res.json({value: "WIP"});
 });
 export default app;

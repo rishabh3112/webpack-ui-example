@@ -1,0 +1,27 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    height: 100vh;
+    background: #e0e0ef;
+}
+#root {
+    height: 100%;
+}
+.App{
+    height: calc(100% - 20px);
+}
+
+pre {
+    margin: 0px;
+    height: 100%;
+}
+
+.pad-section {
+    padding: 10px;
+}
+
+code.javascript {
+    height: 100%;
+    padding-top: 10px;
+    padding-left: 20px;
+}

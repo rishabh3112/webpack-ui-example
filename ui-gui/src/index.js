@@ -7,9 +7,9 @@ import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import Highlight from 'react-highlight';
+import {Controlled as CodeMirror} from 'react-codemirror2';
+import 'codemirror/mode/javascript/javascript';
 import "./App.css";
-import "highlight.js/styles/an-old-hope.css";
 import 'babel-polyfill';
 
 const styles = (theme) => ({
@@ -29,9 +29,13 @@ const styles = (theme) => ({
         height: "100%"
     },
     right: {
-        display: "block",
-        'margin-left': "auto",
-        'margin-right': "0px"
+        display: "inline-block",
+        position: "absolute",
+        right: "20px"
+
+    },
+    left: {
+        display: "inline-block"
     }
 })
 
@@ -40,6 +44,7 @@ class App extends Component{
       super(props);
       this.state = {
           webpack: null,
+          code: "No config found",
       };
       this.sendPostRequest = this.sendPostRequest.bind(this);
   }
@@ -53,11 +58,28 @@ class App extends Component{
           }
       }).then(res => res.json());
       this.setState({
-        webpack: data.webpack
+        webpack: data.webpack,
+        code: data.webpack
       });
   }
-  componentDidMount() {
-      this.sendPostRequest({});
+  async saveChanges() {
+      const request = {
+        webpack: this.state.code
+    }
+      const data = await fetch("http://localhost:1234/api/save", {
+          method: 'POST',
+          body: JSON.stringify(request),
+          headers: {
+              'Content-Type': 'application/json'
+          }
+        }).then(res => res.json());
+        this.setState({
+            webpack: data.webpack,
+            code: data.webpack
+        })
+  }
+  async componentDidMount() {
+      await this.sendPostRequest({});
   }
   render(){
     const { classes } = this.props;
@@ -86,13 +108,27 @@ class App extends Component{
             <Grid item xs={8}>
                 <Paper className={classes.codeblock}>
                     <Button onClick={
+                        () => {this.saveChanges()}
+                    } className={classes.left} variant="contained" color="primary">Save Changes</Button>
+                    <Button onClick={
                         this.sendPostRequest.bind(null,{})
                     } className={classes.right} variant="contained" color="secondary">Refresh Configuration</Button>
-                    <Highlight className='javascript'>
-                        {
-                            this.state.webpack ? this.state.webpack : "No config found"
+                    <CodeMirror
+                        value = {
+                            this.state.code
                         }
-                    </Highlight>
+                        onBeforeChange = {
+                            (editor,data,changedCode) => {
+                                this.setState({
+                                    code: changedCode
+                                })
+                            }
+                        }
+                        options = {{
+                            lineNumbers: true,
+                            theme: 'dracula'
+                        }}
+                        ></CodeMirror>
                 </Paper>
             </Grid>
         </Grid>

@@ -1,3 +1,5 @@
+@import '../node_modules/codemirror/lib/codemirror.css';
+@import '../node_modules/codemirror/theme/dracula.css';
 body {
     margin: 0px;
     padding: 0px;
@@ -11,17 +13,10 @@ body {
     height: calc(100% - 20px);
 }
 
-pre {
-    margin: 0px;
+.CodeMirror {
     height: 100%;
+    max-height: 80vh
 }
-
-.pad-section {
-    padding: 10px;
-}
-
-code.javascript {
+.react-codemirror2 {
     height: 100%;
-    padding-top: 10px;
-    padding-left: 20px;
 }

@@ -4,8 +4,11 @@
   "description": "UI for webpack",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:express": "cd ../ui-server && npm run build",
+    "build:nest": "cd ../ui-server--nest && npm run build",
+    "build:gui": "cd ../ui-gui && npm run build",
+    "build": "npm run build:express && npm run build:nest && npm run build:gui"
   },
   "author": "",
-  "license": "ISC"
+  "license": "MIT"
 }

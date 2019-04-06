@@ -20,7 +20,6 @@ app.get('/', (req, res) => {
 });
 app.post('/api/save', (req, res) => {
     writeFileSync( resolve(USER_DIRECTORY, "webpack.config.js"), req.body.webpack);
-    console.log("Apple " + req.body.webpack);
     res.json({
         status: '200',
     });

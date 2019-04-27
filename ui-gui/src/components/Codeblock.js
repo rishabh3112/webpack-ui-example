@@ -7,62 +7,50 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/dracula.css';
 
 // Material UI components
-import { Typography, Button, Paper } from '@material-ui/core';
+import { Typography, Button, Paper, Divider } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import { relative } from 'path';
+
+// Redux Store
+import {connect} from 'react-redux';
+import {refresh, save} from '../store/features/webpack'; 
+
+const mapStateToProps = (state) => {
+    return {
+        webpack: state.webpack,
+    }
+};
 
 class Codeblock extends Component {
     constructor(props){
         super(props)
         this.state = {
-            codeOnFile: null,
             currentCode: null,
+            hasChanges: false
         }
-        this.request = this.request.bind(this);
-        this.refresh = this.refresh.bind(this);
-        this.save = this.save.bind(this);
-    }
-    async request(route, req) {
-        const data = await fetch(
-            `http://localhost:1234${route}`,
-            {
-                method: 'POST',
-                body: JSON.stringify(req),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }
-        ).then(res => res.json());
-        return data;
     }
 
-    async refresh() {
-        // Reset contents of the CodeBlock on refresh
-        const data = await this.request('/api/init', {});
-        this.setState({
-            codeOnFile: data.webpack,
-            currentCode: data.webpack
-        });
-    }
-
-    async save() {
-        // Save changes to the webpack configuration
-        const data = await this.request('/api/save', {
-            webpack: this.state.currentCode
-        });
-        this.setState({
-            currentCode: data.webpack,
-            codeOnFile: data.webpack
-        });
-    }
-
-    async componentDidMount() {
+    componentDidMount = async () => {
         // Find if root already have a configuration file, if so, update codeblock content
-        const data = await this.request('/api/init', {});
+        await this.props.refresh();
         this.setState({
-            currentCode: data.webpack,
-            codeOnFile: data.webpack
-        });
+            currentCode: this.props.webpack
+        })
+    }
+
+    save = async () => {
+        await this.props.save(this.state.currentCode);
+        this.setState({
+            currentCode: this.props.webpack,
+            hasChanges: false
+        })
+    }
+
+    refresh = async () => {
+        await this.props.refresh();
+        this.setState({
+            currentCode: this.props.webpack,
+            hasChanges: false
+        })
     }
 
     render(){
@@ -70,28 +58,30 @@ class Codeblock extends Component {
         const { classes } = this.props;
         const css = classes;
 
-        if (this.state.codeOnFile === null) {
+        if (this.props.webpack === null) {
             return (
-                <Typography className='no-conf' variant='title'>
-                    No webpack Configuration found!
+                <div className='no-conf'>
+                    <Typography variant='title'>
+                        No webpack Configuration found!
+                    </Typography>
                     <Typography variant='subtitle1'>
                         Get Started by scaffolding you project!
                     </Typography>
-                </Typography>
+                </div>
             )
         }
         return (
             <Paper className={ css.codeblock }>
                 <Typography className={css.filename} variant='subheading'>
-                    <b>webpack.config.js</b>
+                    <b>webpack.config.js</b>{this.state.hasChanges && "*"}
                 </Typography>
                 <Button
-                    onClick = {this.save.bind(null)}
+                    onClick = {this.save}
                     className = {css.save}
                     variant = 'text'
                 > Save Changes </Button>
                 <Button
-                    onClick = {this.refresh.bind(null)}
+                    onClick = {this.refresh}
                     className = {css.refresh}
                     variant = 'extendedFab'
                     color = 'primary'
@@ -103,6 +93,11 @@ class Codeblock extends Component {
                                 this.setState({
                                     currentCode: value
                                 });
+                                if (this.state.currentCode !== this.props.webpack) {
+                                    this.setState({
+                                        hasChanges: true
+                                    });
+                                }
                             }
                         }
                         options = {
@@ -148,4 +143,5 @@ const css = (theme) => ({
     }
 })
 
-export default withStyles(css)(Codeblock);
+const StyledCodeBlock = withStyles(css)(Codeblock);
+export default connect(mapStateToProps, {refresh, save})(StyledCodeBlock);

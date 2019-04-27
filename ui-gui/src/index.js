@@ -1,15 +1,17 @@
 import React, { Component} from "react";
 import ReactDOM from "react-dom";
+import 'babel-polyfill';
+import store from './store';
+import {scaffold} from './store/features/webpack';
+import { connect, Provider } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import {Controlled as CodeMirror} from 'react-codemirror2';
-import 'codemirror/mode/javascript/javascript';
+
 import "./App.css";
-import 'babel-polyfill';
 import Codeblock from "./components/Codeblock";
 
 const styles = (theme) => ({
@@ -25,17 +27,6 @@ const styles = (theme) => ({
 class App extends Component{
   constructor(props){
       super(props);
-      this.sendPostRequest = this.sendPostRequest.bind(this);
-  }
-
-  async sendPostRequest(req){
-      await fetch("http://localhost:1234/api/init",{
-          method: 'POST',
-          body: JSON.stringify(req),
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      }).then(res => res.json());
   }
 
   render(){
@@ -59,11 +50,7 @@ class App extends Component{
                         Scaffold new project by one click!!
                     </Typography>
 
-                    <Button onClick={
-                        this.sendPostRequest.bind(null,{
-                            type: "defaults"
-                        })
-                    } variant="contained" color="primary">Scaffold Defaults</Button>
+                    <Button onClick={() => {this.props.scaffold()}} variant="contained" color="primary">Scaffold Defaults</Button>
 
                 </div>
             </Grid>
@@ -75,9 +62,17 @@ class App extends Component{
     );
   }
 }
-const StyledApp = withStyles(styles)(App);
+const mapStateToProps = (state) => {
+    return {
+        webpack: state.webpack,
+    }
+};
+
+const StyledApp = connect(mapStateToProps, {scaffold})(withStyles(styles)(App));
 ReactDOM.render(
-   <StyledApp/>,
+    <Provider store={store}>
+        <StyledApp/>
+    </Provider>,
     document.getElementById("root")
 );
 

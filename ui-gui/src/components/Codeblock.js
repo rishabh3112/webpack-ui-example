@@ -12,44 +12,45 @@ import { withStyles } from '@material-ui/core/styles';
 
 // Redux Store
 import {connect} from 'react-redux';
-import {refresh, save} from '../store/actions/webpack'; 
+import {refresh, save} from '../store/features/webpack'; 
 
 const mapStateToProps = (state) => {
     return {
         webpack: state.webpack,
     }
 };
-const mapDispatchToProps = (dispatch) => ({
-        
-        refresh: async() => {await dispatch(refresh);},
-        save: async(currentCode) => {await dispatch(save(currentCode))}
-});
 
 class Codeblock extends Component {
     constructor(props){
         super(props)
         this.state = {
             currentCode: null,
+            hasChanges: false
         }
     }
 
-    async componentDidMount() {
+    componentDidMount = async () => {
         // Find if root already have a configuration file, if so, update codeblock content
-        this.refresh();
+        await this.props.refresh();
+        this.setState({
+            currentCode: this.props.webpack
+        })
     }
-    async save() {
+
+    save = async () => {
         await this.props.save(this.state.currentCode);
         this.setState({
             currentCode: this.props.webpack,
+            hasChanges: false
         })
-        console.log(`props: ${JSON.stringify(this.props, null, 2)}`);
     }
-    async refresh() {
+
+    refresh = async () => {
         await this.props.refresh();
         this.setState({
             currentCode: this.props.webpack,
+            hasChanges: false
         })
-        console.log(`props: ${JSON.stringify(this.props, null, 2)}`);
     }
 
     render(){
@@ -72,7 +73,7 @@ class Codeblock extends Component {
         return (
             <Paper className={ css.codeblock }>
                 <Typography className={css.filename} variant='subheading'>
-                    <b>webpack.config.js</b>
+                    <b>webpack.config.js</b>{this.state.hasChanges && "*"}
                 </Typography>
                 <Button
                     onClick = {this.save}
@@ -86,12 +87,17 @@ class Codeblock extends Component {
                     color = 'primary'
                 > Refresh </Button>
                 <CodeMirror
-                        value = {this.props.webpack}
+                        value = {this.state.currentCode}
                         onBeforeChange = {
                             (editor, data, value) => {
                                 this.setState({
                                     currentCode: value
                                 });
+                                if (this.state.currentCode !== this.props.webpack) {
+                                    this.setState({
+                                        hasChanges: true
+                                    });
+                                }
                             }
                         }
                         options = {
@@ -138,4 +144,4 @@ const css = (theme) => ({
 })
 
 const StyledCodeBlock = withStyles(css)(Codeblock);
-export default connect(mapStateToProps,mapDispatchToProps)(StyledCodeBlock);
+export default connect(mapStateToProps, {refresh, save})(StyledCodeBlock);

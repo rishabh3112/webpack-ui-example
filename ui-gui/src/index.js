@@ -2,9 +2,8 @@ import React, { Component} from "react";
 import ReactDOM from "react-dom";
 import 'babel-polyfill';
 import store from './store';
-import {refresh} from './store/actions/webpack';
-import { Provider } from 'react-redux';
-
+import {scaffold} from './store/features/webpack';
+import { connect, Provider } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid'
@@ -51,7 +50,7 @@ class App extends Component{
                         Scaffold new project by one click!!
                     </Typography>
 
-                    <Button onClick={() => {store.dispatch(refresh)}} variant="contained" color="primary">Scaffold Defaults</Button>
+                    <Button onClick={() => {this.props.scaffold()}} variant="contained" color="primary">Scaffold Defaults</Button>
 
                 </div>
             </Grid>
@@ -63,7 +62,13 @@ class App extends Component{
     );
   }
 }
-const StyledApp = withStyles(styles)(App);
+const mapStateToProps = (state) => {
+    return {
+        webpack: state.webpack,
+    }
+};
+
+const StyledApp = connect(mapStateToProps, {scaffold})(withStyles(styles)(App));
 ReactDOM.render(
     <Provider store={store}>
         <StyledApp/>

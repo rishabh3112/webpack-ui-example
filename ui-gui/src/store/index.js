@@ -1,9 +1,9 @@
 import { configureStore } from 'redux-starter-kit';
-import webpackReducer from './reducers/webpackReducer';
+import { reducer } from './features/webpack';
 
 const store = configureStore({
     reducer: {
-        'webpack': webpackReducer,
+        'webpack': reducer,
     }
 })
 
